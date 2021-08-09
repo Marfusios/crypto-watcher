@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "CryptoWatcher": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "btceur"
+      }
+    }
+  }
+}
