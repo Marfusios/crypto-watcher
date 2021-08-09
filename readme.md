@@ -5,11 +5,11 @@ This sample console application presents possibilities of [crypto-websocket-exte
 * displaying real-time price changes (under 1ms)
 * displaying L3 order book with reporting about price/amount updates of the individual orders
 
-Price changes: 
+#### Price changes
 
 ![crypto watcher](./cryptowatcher.gif)
 
-L3 order book: 
+#### L3 order book
 
 ![crypto watcher L3](./cryptowatcher_l3.gif)
 
