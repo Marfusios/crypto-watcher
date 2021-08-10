@@ -6,7 +6,6 @@ using Bitfinex.Client.Websocket;
 using Bitfinex.Client.Websocket.Client;
 using Bitfinex.Client.Websocket.Websockets;
 using Crypto.Websocket.Extensions.Core.OrderBooks;
-using Crypto.Websocket.Extensions.Core.OrderBooks.Models;
 using Crypto.Websocket.Extensions.Core.OrderBooks.Sources;
 using Crypto.Websocket.Extensions.OrderBooks.SourcesL3;
 using CryptoWatcher.Configuration;
@@ -54,26 +53,39 @@ namespace CryptoWatcher.Background
             var bids = ob.BidLevels.Take(levelsCount).ToArray();
             var asks = ob.AskLevels.Take(levelsCount).ToArray();
 
+            var asksOrdered = asks.OrderByDescending(x => x.Price).ToArray();
+            var bidsOrdered = bids.OrderByDescending(x => x.Price).ToArray();
+
             var table = new Table()
                 .Title($"L3 Order Book ([bold deepskyblue2]{ob.ExchangeName.ToUpper()}[/] {ob.TargetPairOriginal})", new Style(Color.LightGoldenrod2))
                 .Border(TableBorder.Rounded)
                 .AddColumn("#", t => t.Alignment = Justify.Left)
                 .AddColumn("Price", t => t.Alignment = Justify.Right)
                 .AddColumn("Amount", t => t.Alignment = Justify.Right)
+                .AddColumn("Total", t => t.Alignment = Justify.Right)
+                .AddColumn("Distance", t => t.Alignment = Justify.Right)
                 .AddColumn("Price Updated", t => t.Alignment = Justify.Right)
                 .AddColumn("Amount Updated", t => t.Alignment = Justify.Right)
                 .AddColumn("Amount Changed", t => t.Alignment = Justify.Right)
                 ;
 
-            var totalAsks = asks.Length;
+            var totalAsks = asksOrdered.Length;
             var counter = 0;
 
-            foreach (OrderBookLevel ask in asks.OrderByDescending(x => x.Price))
+            var mid = ob.MidPrice;
+
+            foreach (var ask in asksOrdered)
             {
+                var index = totalAsks - counter;
+                var total = asksOrdered[counter..totalAsks].Sum(x => x.Amount);
+                var dis = (1 - mid / ask.Price) * 100;
+
                 table.AddRow(
-                    $"[bold indianred_1]{totalAsks - counter}[/]",
+                    $"[bold indianred_1]{index}[/]",
                     $"{ask.Price:0.00}",
-                    $"{ask.Amount:0.00##}",
+                    $"{ask.Amount:0.0000}",
+                    $"{total:0.0000}",
+                    $"{dis:#.0000}%",
                     $"{ask.PriceUpdatedCount:#}",
                     $"{ask.AmountUpdatedCount:#}",
                     $"{ask.AmountDifferenceAggregated:#.####} {GetDifferenceSign(ask.AmountDifferenceAggregated)}"
@@ -85,14 +97,18 @@ namespace CryptoWatcher.Background
 
             counter = 0;
 
-            foreach (OrderBookLevel bid in bids.OrderBy(x => x.Price))
+            foreach (var bid in bidsOrdered)
             {
                 counter++;
+                var total = bidsOrdered[..counter].Sum(x => x.Amount);
+                var dis =   (mid / bid.Price - 1) * 100;
 
                 table.AddRow(
                     $"[bold darkseagreen3_1]{counter}[/]",
                     $"{bid.Price:0.00}",
-                    $"{bid.Amount:0.00##}",
+                    $"{bid.Amount:0.0000}",
+                    $"{total:0.0000}",
+                    $"{dis:#.0000}%",
                     $"{bid.PriceUpdatedCount:#}",
                     $"{bid.AmountUpdatedCount:#}",
                     $"{bid.AmountDifferenceAggregated:#.####} {GetDifferenceSign(bid.AmountDifferenceAggregated)}"
