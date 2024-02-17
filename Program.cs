@@ -20,7 +20,7 @@ namespace CryptoWatcher
             Console.InputEncoding = Encoding.UTF8;
 
             var rule = new Rule("₿ Crypto Watcher ₿");
-            AnsiConsole.Render(rule);
+            AnsiConsole.Write(rule);
             AnsiConsole.WriteLine();
 
             await host.RunAsync();

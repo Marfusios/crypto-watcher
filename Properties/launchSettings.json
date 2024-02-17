@@ -3,7 +3,7 @@
     "CryptoWatcher": {
       "commandName": "Project",
       "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "btceur"
+        //"DOTNET_ENVIRONMENT": "btceur"
       }
     }
   }
